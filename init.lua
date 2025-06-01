@@ -1,0 +1,145 @@
+require("jake.core.keymaps")
+
+vim.g.maplocalleader = ","
+
+-- line numbers
+vim.wo.relativenumber = true
+vim.wo.number = true
+
+-- tabs
+local opt = vim.opt
+
+opt.tabstop = 2 opt.shiftwidth = 2
+opt.expandtab = true
+opt.autoindent = true
+
+-- line wrap
+opt.wrap = false
+
+-- searching
+opt.ignorecase = true
+opt.smartcase = true
+
+-- backspace key
+opt.backspace = "indent,eol,start"
+
+-- clipboard
+opt.clipboard:append("unnamedplus")
+
+-- split windows
+opt.splitright = true
+opt.splitbelow = true
+
+opt.iskeyword:append("-")
+
+--
+-- ====================
+-- plugins too
+-- ====================
+--
+-- packer setup:
+local ensure_packer = function()
+  local fn = vim.fn
+  local install_path = fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
+  if fn.empty(fn.glob(install_path)) > 0 then
+    fn.system({ "git", "clone", "--depth", "1", "https://github.com/wbthomason/packer.nvim", install_path })
+    vim.cmd([[packadd packer.nvim]])
+    return true
+  end
+  return false
+end
+local packer_bootstrap = ensure_packer() -- true if packer was just installed
+
+-- autocommand that reloads neovim and installs/updates/removes plugins
+-- when file is saved
+vim.cmd([[ 
+  augroup packer_user_config
+    autocmd!
+    autocmd BufWritePost plugins-setup.lua source <afile> | PackerSync
+  augroup end
+]])
+
+-- import packer safely
+local status, packer = pcall(require, "packer")
+if not status then
+  return
+end
+
+-- add list of plugins to install
+return packer.startup(function(use)
+  -- packer can manage itself
+  use("wbthomason/packer.nvim")
+
+  use("nvim-lua/plenary.nvim") -- lua functions that many plugins use
+
+  use("christoomey/vim-tmux-navigator") -- tmux & split window navigation
+
+  use("szw/vim-maximizer") -- maximizes and restores current window
+
+  -- essential plugins
+  use("tpope/vim-surround") -- add, delete, change surroundings (it's awesome)
+  use("inkarkat/vim-ReplaceWithRegister") -- replace with register contents using motion (gr + motion)
+
+  -- commenting with gc
+  use("numToStr/Comment.nvim")
+
+  -- file explorer
+  use("nvim-tree/nvim-tree.lua")
+
+  -- statusline
+  use("nvim-lualine/lualine.nvim")
+
+  -- fuzzy finding w/ telescope
+  use({ "nvim-telescope/telescope-fzf-native.nvim", run = "make" }) -- dependency for better sorting performance
+  use({ "nvim-telescope/telescope.nvim", branch = "0.1.x" }) -- fuzzy finder
+
+  -- autocompletion
+  use("hrsh7th/nvim-cmp") -- completion plugin
+  use("hrsh7th/cmp-buffer") -- source for text in buffer
+  use("hrsh7th/cmp-path") -- source for file system paths
+
+  -- snippets
+  use("L3MON4D3/LuaSnip") -- snippet engine
+  use("saadparwaiz1/cmp_luasnip") -- for autocompletion
+  use("rafamadriz/friendly-snippets") -- useful snippets
+
+  -- formatting & linting
+  use("jose-elias-alvarez/null-ls.nvim") -- configure formatters & linters
+  use("jayp0521/mason-null-ls.nvim") -- bridges gap b/w mason & null-ls
+
+  -- treesitter configuration
+  use({
+    "nvim-treesitter/nvim-treesitter",
+    run = function()
+      local ts_update = require("nvim-treesitter.install").update({ with_sync = true })
+      ts_update()
+    end,
+  })
+
+  -- git integration
+  use("lewis6991/gitsigns.nvim") -- show line modifications on left hand side
+
+  -- tidal cycles
+  use("tidalcycles/vim-tidal") -- tidal cycles integration
+  
+  -- colorscheme:
+  use('rktjmp/lush.nvim')
+  use({'uloco/bluloco.nvim',
+  config = function()
+    vim.o.background = 'light'
+    vim.cmd('colorscheme bluloco');
+  end
+  })
+
+
+  if packer_bootstrap then
+    require("packer").sync()
+  end
+
+end)
+
+
+
+-- =======================
+-- end plugins
+-- ======================

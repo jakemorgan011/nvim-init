@@ -119,6 +119,12 @@ return packer.startup(function(use)
   -- git integration
   use("lewis6991/gitsigns.nvim") -- show line modifications on left hand side
 
+  -- GLSL support
+  use("tikhomirov/vim-glsl")
+
+  -- chuCK support
+  use("wilsaj/chuck.vim")
+
   -- tidal cycles
   use("tidalcycles/vim-tidal") -- tidal cycles integration
   
@@ -130,6 +136,7 @@ return packer.startup(function(use)
     vim.cmd('colorscheme bluloco');
   end
   })
+
 
 
   if packer_bootstrap then
